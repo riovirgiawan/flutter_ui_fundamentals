@@ -311,7 +311,6 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  // --- FUNGSI BARU UNTUK HAPUS SEMUA FAVORIT ---
   void clearFavorites() {
     setState(() {
       favoriteCourses.clear();
@@ -357,11 +356,12 @@ class _CoursesPageState extends State<CoursesPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // --- PEMANGGILAN WIDGET FAVORITE SUMMARY DI SINI ---
                 FavoriteSummary(
                   favoriteCourses: favoriteCourses,
                   onClearFavorites: clearFavorites,
                 ),
+                
+                const ValueNotifierDemo(),
                 
                 const SizedBox(height: 16),
 
@@ -439,7 +439,7 @@ class _CoursesPageState extends State<CoursesPage> {
 }
 
 // ======================================================
-// FAVORITE SUMMARY WIDGET (BARU)
+// FAVORITE SUMMARY WIDGET
 // ======================================================
 
 class FavoriteSummary extends StatelessWidget {
@@ -471,6 +471,90 @@ class FavoriteSummary extends StatelessWidget {
             TextButton(
               onPressed: favoriteCourses.isEmpty ? null : onClearFavorites,
               child: const Text('Hapus Semua'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ======================================================
+// VALUE NOTIFIER DEMO WIDGET (BARU)
+// ======================================================
+
+class ValueNotifierDemo extends StatefulWidget {
+  const ValueNotifierDemo({super.key});
+
+  @override
+  State<ValueNotifierDemo> createState() =>
+      _ValueNotifierDemoState();
+}
+
+class _ValueNotifierDemoState extends State<ValueNotifierDemo> {
+  final ValueNotifier<int> counter = ValueNotifier<int>(0);
+
+  @override
+  void dispose() {
+    counter.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(top: 16, bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Eksperimen ValueNotifier',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text('$studentId - $studentName'),
+            const SizedBox(height: 12),
+            const Text('Nilai counter:'),
+
+            ValueListenableBuilder<int>(
+              valueListenable: counter,
+              builder: (context, value, child) {
+                return Text(
+                  '$value',
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    counter.value++;
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Tambah'),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    if (counter.value > 0) {
+                      counter.value--;
+                    }
+                  },
+                  icon: const Icon(Icons.remove),
+                  label: const Text('Kurangi'),
+                ),
+              ],
             ),
           ],
         ),
