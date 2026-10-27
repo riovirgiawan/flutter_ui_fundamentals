@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'course_state.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
@@ -361,8 +362,6 @@ class _CoursesPageState extends State<CoursesPage> {
                   onClearFavorites: clearFavorites,
                 ),
                 
-                const ValueNotifierDemo(),
-                
                 const SizedBox(height: 16),
 
                 ElevatedButton.icon(
@@ -429,6 +428,19 @@ class _CoursesPageState extends State<CoursesPage> {
                       );
                     },
                   ),
+
+                // --- BAGIAN EKSPERIMEN DIPINDAHKAN KE BAWAH SINI ---
+                const SizedBox(height: 24),
+                const Divider(),
+                const Text(
+                  'Eksperimen State Management',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const ValueNotifierDemo(),
+                const ChangeNotifierDemo(),
               ],
             ),
           );
@@ -480,7 +492,7 @@ class FavoriteSummary extends StatelessWidget {
 }
 
 // ======================================================
-// VALUE NOTIFIER DEMO WIDGET (BARU)
+// VALUE NOTIFIER DEMO WIDGET
 // ======================================================
 
 class ValueNotifierDemo extends StatefulWidget {
@@ -557,6 +569,91 @@ class _ValueNotifierDemoState extends State<ValueNotifierDemo> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ======================================================
+// CHANGE NOTIFIER DEMO WIDGET
+// ======================================================
+
+class ChangeNotifierDemo extends StatefulWidget {
+  const ChangeNotifierDemo({super.key});
+
+  @override
+  State<ChangeNotifierDemo> createState() =>
+      _ChangeNotifierDemoState();
+}
+
+class _ChangeNotifierDemoState extends State<ChangeNotifierDemo> {
+  final CourseState courseState = CourseState();
+
+  @override
+  void dispose() {
+    courseState.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(top: 16, bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: AnimatedBuilder(
+          animation: courseState,
+          builder: (context, child) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Eksperimen ChangeNotifier',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text('$studentId - $studentName'),
+                const SizedBox(height: 12),
+                Text(
+                  'Jumlah favorite: '
+                  '${courseState.favorites.length}',
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  courseState.favorites.isEmpty
+                      ? 'Belum ada favorite.'
+                      : 'Favorite: '
+                          '${courseState.favorites.join(', ')}',
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final id in [
+                      'MOB01',
+                      'MOB02',
+                      'MOB03',
+                    ])
+                      ElevatedButton(
+                        onPressed: () {
+                          courseState.toggleFavorite(id);
+                        },
+                        child: Text(
+                          courseState.favorites.contains(id)
+                              ? 'Hapus $id'
+                              : 'Pilih $id',
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
