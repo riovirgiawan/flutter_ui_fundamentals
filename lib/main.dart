@@ -261,6 +261,8 @@ class CoursesPage extends StatefulWidget {
 class _CoursesPageState extends State<CoursesPage> {
   final Set<String> favoriteCourses = {};
 
+  bool showDetail = false;
+
   Future<void> openCourseDetail(
     Map<String, dynamic> course,
   ) async {
@@ -309,6 +311,12 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
+  void toggleDetail() {
+    setState(() {
+      showDetail = !showDetail;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -337,15 +345,43 @@ class _CoursesPageState extends State<CoursesPage> {
                 ),
                 const SizedBox(height: 20),
 
+                ElevatedButton.icon(
+                  onPressed: toggleDetail,
+                  icon: Icon(
+                    showDetail ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  label: Text(
+                    showDetail ? 'Sembunyikan Detail' : 'Tampilkan Detail',
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
                 if (!expanded)
                   Column(
                     children: courses.map((course) {
-                      return CourseCard(
-                        course: course,
-                        isFavorite:
-                            favoriteCourses.contains(course['code']),
-                        onTap: () => openCourseDetail(course),
-                        onFavorite: () => toggleFavorite(course),
+                      return Column(
+                        children: [
+                          CourseCard(
+                            course: course,
+                            isFavorite:
+                                favoriteCourses.contains(course['code']),
+                            onTap: () => openCourseDetail(course),
+                            onFavorite: () => toggleFavorite(course),
+                          ),
+                          if (showDetail)
+                            Card(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  'Detail: ${course['title']} memiliki '
+                                  '${course['credits']} SKS dan status '
+                                  '${course['status']}.',
+                                ),
+                              ),
+                            ),
+                        ],
                       );
                     }).toList(),
                   )
@@ -490,13 +526,11 @@ class CourseDetailPage extends StatelessWidget {
             const SizedBox(height: 4),
             const Text(studentId),
             const SizedBox(height: 30),
-
             const Icon(
               Icons.school,
               size: 70,
             ),
             const SizedBox(height: 20),
-
             Text(
               course['title'],
               style: const TextStyle(
@@ -505,25 +539,21 @@ class CourseDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-
             Text(
               'Kode: ${course['code']}',
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 10),
-
             Text(
               'Credits: ${course['credits']} SKS',
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 10),
-
             Text(
               'Status: ${course['status']}',
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 30),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -577,7 +607,6 @@ class ProfilePage extends StatelessWidget {
               style: TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 30),
-
             const FeedbackForm(),
           ],
         ),
@@ -691,7 +720,6 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 ),
               ),
               const SizedBox(height: 18),
-
               TextFormField(
                 controller: namaController,
                 decoration: const InputDecoration(
@@ -706,7 +734,6 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 },
               ),
               const SizedBox(height: 14),
-
               TextFormField(
                 controller: nimController,
                 decoration: const InputDecoration(
@@ -721,7 +748,6 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 },
               ),
               const SizedBox(height: 14),
-
               TextFormField(
                 controller: komentarController,
                 maxLines: 4,
@@ -734,16 +760,13 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Komentar wajib diisi';
                   }
-
                   if (value.trim().length < 5) {
                     return 'Komentar minimal 5 karakter';
                   }
-
                   return null;
                 },
               ),
               const SizedBox(height: 18),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -751,7 +774,6 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   child: const Text('Kirim Feedback'),
                 ),
               ),
-
               if (isLoading) ...[
                 const SizedBox(height: 18),
                 const Center(
