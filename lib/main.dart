@@ -304,9 +304,21 @@ class _CoursesPageState extends State<CoursesPage> {
       SnackBar(
         content: Text(
           favoriteCourses.contains(course['code'])
-              ? '${course['title']} ditambahkan ke favorite.'
-              : '${course['title']} dihapus dari favorite.',
+              ? 'Course ditambahkan ke favorite'
+              : 'Course dihapus dari favorite',
         ),
+      ),
+    );
+  }
+
+  // --- FUNGSI BARU UNTUK HAPUS SEMUA FAVORIT ---
+  void clearFavorites() {
+    setState(() {
+      favoriteCourses.clear();
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Semua favorite dihapus.'),
       ),
     );
   }
@@ -344,6 +356,14 @@ class _CoursesPageState extends State<CoursesPage> {
                   '$studentId - $studentName',
                 ),
                 const SizedBox(height: 20),
+
+                // --- PEMANGGILAN WIDGET FAVORITE SUMMARY DI SINI ---
+                FavoriteSummary(
+                  favoriteCourses: favoriteCourses,
+                  onClearFavorites: clearFavorites,
+                ),
+                
+                const SizedBox(height: 16),
 
                 ElevatedButton.icon(
                   onPressed: toggleDetail,
@@ -413,6 +433,47 @@ class _CoursesPageState extends State<CoursesPage> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ======================================================
+// FAVORITE SUMMARY WIDGET (BARU)
+// ======================================================
+
+class FavoriteSummary extends StatelessWidget {
+  final Set<String> favoriteCourses;
+  final VoidCallback onClearFavorites;
+
+  const FavoriteSummary({
+    super.key,
+    required this.favoriteCourses,
+    required this.onClearFavorites,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Jumlah course favorit: ${favoriteCourses.length}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextButton(
+              onPressed: favoriteCourses.isEmpty ? null : onClearFavorites,
+              child: const Text('Hapus Semua'),
+            ),
+          ],
+        ),
       ),
     );
   }
