@@ -13,16 +13,17 @@ import 'screens/add_course_page.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
+const String apiBaseUrl = 'https://course-api-pearl.vercel.app';
 
 
 void main() {
+  final repository = CourseRepository(
+    CourseApiService(apiBaseUrl),
+  );
+
   runApp(
     ChangeNotifierProvider(
-      create: (_) => CourseProvider(
-        CourseRepository(
-          CourseApiService('https://course-api-pearl.vercel.app'),
-        ),
-      ),
+      create: (_) => CourseProvider(repository)..loadCourses(),
       child: const MyApp(),
     ),
   );

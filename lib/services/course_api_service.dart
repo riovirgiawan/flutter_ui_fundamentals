@@ -1,11 +1,9 @@
-
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
-
 import '../models/course.dart';
+import 'course_data_source.dart';
 
-class CourseApiService {
+class CourseApiService implements CourseDataSource {
   final String baseUrl;
 
   CourseApiService(this.baseUrl);
