@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'models/course.dart';
-import 'services/course_service.dart';
+import 'services/course_api_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'screens/home_page.dart';
@@ -13,40 +11,14 @@ import 'screens/favorites_page.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
-const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
-Future<List<Course>> fetchCourses() async {
-  final response = await http.get(Uri.parse(apiUrl));
 
-  if (response.statusCode == 200) {
-    final List<dynamic> data = jsonDecode(response.body);
-
-    final courses = data.map((item) {
-      return Course.fromJson(item as Map<String, dynamic>);
-    }).toList();
-
-    debugPrint('GET berhasil!');
-    debugPrint('Jumlah data course: ${courses.length}');
-
-    return courses;
-  }
-
-  throw Exception('HTTP ${response.statusCode}');
-}
 
 void main() {
-  fetchCourses()
-      .then((courses) {
-        debugPrint('Data berhasil diterima: ${courses.length} course');
-      })
-      .catchError((error) {
-        debugPrint('Gagal mengambil data: $error');
-      });
-
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseProvider(
         CourseRepository(
-          CourseService(),
+          CourseApiService('https://course-api-pearl.vercel.app'),
         ),
       ),
       child: const MyApp(),
@@ -283,20 +255,6 @@ class _CoursesPageState extends State<CoursesPage> {
                 const Text(
                   '$studentId - $studentName',
                 ),const SizedBox(height: 16),
-                const Text(
-                  'Data Course dari REST API',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                const ApiCourseList(),
-
-                const SizedBox(height: 20),
-                const SizedBox(height: 20),
 
                 const FavoriteSummary(),
 
@@ -816,60 +774,3 @@ class _FeedbackFormState extends State<FeedbackForm> {
   }
 }
 
-// ======================================================
-// API COURSE LIST
-// ======================================================
-
-class ApiCourseList extends StatefulWidget {
-  const ApiCourseList({super.key});
-
-  @override
-  State<ApiCourseList> createState() => _ApiCourseListState();
-}
-
-class _ApiCourseListState extends State<ApiCourseList> {
-  late Future<List<Course>> coursesFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    coursesFuture = fetchCourses();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Course>>(
-      future: coursesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Text('Gagal mengambil data: ${snapshot.error}');
-        }
-
-        final courses = snapshot.data ?? [];
-
-        if (courses.isEmpty) {
-          return const Text('Data course kosong.');
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: courses.take(3).map((course) {
-            return Card(
-              child: ListTile(
-                title: Text(course.code),
-                subtitle: Text(course.title),
-                trailing: Text(course.status),
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-}

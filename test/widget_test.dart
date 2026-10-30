@@ -1,11 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-//import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_ui_fundamentals/main.dart';
 import 'package:flutter_ui_fundamentals/providers/course_provider.dart';
 import 'package:flutter_ui_fundamentals/repositories/course_repository.dart';
-import 'package:flutter_ui_fundamentals/services/course_service.dart';
+import 'package:flutter_ui_fundamentals/services/course_api_service.dart';
 
 void main() {
   testWidgets('Course Explorer berhasil dibangun dengan Provider',
@@ -14,7 +13,7 @@ void main() {
       ChangeNotifierProvider(
         create: (_) => CourseProvider(
           CourseRepository(
-            CourseService(),
+            CourseApiService('https://course-api-pearl.vercel.app'),
           ),
         ),
         child: const MyApp(),
