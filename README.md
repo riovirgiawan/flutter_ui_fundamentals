@@ -1,17 +1,27 @@
 # flutter_ui_fundamentals
 
-A new Flutter project.
+Aplikasi Course Explorer merupakan aplikasi Flutter untuk menampilkan informasi mata kuliah dan mengelola daftar favorit.
 
 ## Getting Started
 
 This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+Beberapa sumber untuk mempelajari Flutter:
 
 - [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
 - [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- [Flutter Documentation](https://docs.flutter.dev/)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Struktur Folder dan Tanggung Jawab
+
+Proyek Course Explorer menggunakan arsitektur berlapis untuk memisahkan tanggung jawab setiap bagian aplikasi.
+
+- **models/**: Menyimpan model data, seperti `Course`, untuk merepresentasikan data mata kuliah.
+- **services/**: Bertanggung jawab mengambil dan membaca data, termasuk memuat file JSON dari assets.
+- **repositories/**: Mengatur akses data dari service dan menyediakan data untuk Provider.
+- **providers/**: Mengelola state aplikasi, seperti daftar mata kuliah, status loading, error, dan favorit.
+- **screens/**: Menyimpan halaman utama aplikasi, seperti Home Page dan Course Detail Page.
+- **widgets/**: Menyimpan komponen UI yang dapat digunakan kembali pada beberapa halaman.
+
+Struktur ini bertujuan memisahkan logika pengambilan data, pengelolaan state, dan tampilan agar kode lebih terorganisasi serta mudah dikembangkan.
