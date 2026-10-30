@@ -8,7 +8,7 @@ class CourseProvider extends ChangeNotifier {
 
   CourseProvider(this.repository);
 
-  // Data mata kuliah
+  // Data mata kuliah dari Repository
   List<Course> courses = [];
 
   // Status pengambilan data
