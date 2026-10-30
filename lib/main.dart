@@ -8,6 +8,7 @@ import 'screens/home_page.dart';
 import 'screens/course_detail_page.dart';
 import 'widgets/course_card.dart';
 import 'screens/favorites_page.dart';
+import 'widgets/error_view.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
@@ -220,14 +221,9 @@ class _CoursesPageState extends State<CoursesPage> {
           }
 
           if (provider.error != null) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  'Terjadi kesalahan: ${provider.error}',
-                  textAlign: TextAlign.center,
-                ),
-              ),
+            return ErrorView(
+              message: provider.error!,
+              onRetry: provider.loadCourses,
             );
           }
 
