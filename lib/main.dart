@@ -7,6 +7,7 @@ import 'providers/course_provider.dart';
 import 'screens/home_page.dart';
 import 'screens/course_detail_page.dart';
 import 'widgets/course_card.dart';
+import 'screens/favorites_page.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
@@ -33,7 +34,16 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Course Explorer',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1976D2),
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF4F8FB),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1976D2),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: false,
+        ),
         useMaterial3: true,
       ),
       home: const ResponsiveShell(),
@@ -58,6 +68,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   final List<Widget> pages = const [
     HomePage(),
     CoursesPage(),
+    FavoritesPage(),
     ProfilePage(),
   ];
 
@@ -66,28 +77,32 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
       selectedIndex = index;
     });
   }
-
   NavigationBar buildNavigationBar() {
     return NavigationBar(
       selectedIndex: selectedIndex,
       onDestinationSelected: changePage,
       destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.school_outlined),
-          selectedIcon: Icon(Icons.school),
-          label: 'Courses',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
+      NavigationDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: 'Home',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.school_outlined),
+        selectedIcon: Icon(Icons.school),
+        label: 'Courses',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.favorite_outline),
+        selectedIcon: Icon(Icons.favorite),
+        label: 'Favorites',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.person_outline),
+        selectedIcon: Icon(Icons.person),
+        label: 'Profile',
+      ),
+    ],
     );
   }
 
@@ -97,22 +112,27 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
       onDestinationSelected: changePage,
       labelType: NavigationRailLabelType.all,
       destinations: const [
-        NavigationRailDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: Text('Home'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.school_outlined),
-          selectedIcon: Icon(Icons.school),
-          label: Text('Courses'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: Text('Profile'),
-        ),
-      ],
+      NavigationRailDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: Text('Home'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.school_outlined),
+        selectedIcon: Icon(Icons.school),
+        label: Text('Courses'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.favorite_outline),
+        selectedIcon: Icon(Icons.favorite),
+        label: Text('Favorites'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.person_outline),
+        selectedIcon: Icon(Icons.person),
+        label: Text('Profile'),
+      ),
+    ],
     );
   }
 
