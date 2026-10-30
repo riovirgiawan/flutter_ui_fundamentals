@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'course_provider.dart';
 import 'models/course.dart';
+import 'services/course_service.dart';
+import 'repositories/course_repository.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
 
 void main() {
   runApp(
-    ChangeNotifierProvider<CourseProvider>(
-      create: (_) => CourseProvider(),
+    ChangeNotifierProvider(
+      create: (_) => CourseProvider(
+        CourseRepository(
+          CourseService(),
+        ),
+      ),
       child: const MyApp(),
     ),
   );
@@ -219,48 +225,6 @@ class HomePage extends StatelessWidget {
 }
 
 // ======================================================
-// COURSE DATA (MAP)
-// ======================================================
-
-final List<Map<String, dynamic>> rawCoursesData = [
-  {
-    'code': 'MOB01',
-    'title': 'Git & GitHub',
-    'credits': 2,
-    'status': 'done',
-  },
-  {
-    'code': 'MOB02',
-    'title': 'Dart Fundamentals',
-    'credits': 2,
-    'status': 'done',
-  },
-  {
-    'code': 'MOB03',
-    'title': 'Flutter UI Fundamentals',
-    'credits': 3,
-    'status': 'active',
-  },
-  {
-    'code': 'MOB04',
-    'title': 'Navigation',
-    'credits': 2,
-    'status': 'planned',
-  },
-  {
-    'code': 'MOB05',
-    'title': 'State Management',
-    'credits': 3,
-    'status': 'planned',
-  },
-];
-
-final List<Course> courses = rawCoursesData
-    .map((data) => Course.fromJson(data))
-    .toList();
-
-
-// ======================================================
 // COURSES PAGE
 // ======================================================
 
@@ -273,6 +237,16 @@ class CoursesPage extends StatefulWidget {
 
 class _CoursesPageState extends State<CoursesPage> {
   bool showDetail = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<CourseProvider>().loadCourses();
+    });
+  }
 
   void openCourseDetail(Course course) {
     Navigator.push(
@@ -297,6 +271,32 @@ class _CoursesPageState extends State<CoursesPage> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
+          final provider = context.watch<CourseProvider>();
+
+          if (provider.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (provider.error != null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  'Terjadi kesalahan: ${provider.error}',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+
+          if (provider.courses.isEmpty) {
+            return const Center(
+              child: Text('Belum ada data mata kuliah.'),
+            );
+          }
+
           final bool expanded = constraints.maxWidth >= 840;
 
           return SingleChildScrollView(
@@ -335,7 +335,7 @@ class _CoursesPageState extends State<CoursesPage> {
 
                 if (!expanded)
                   Column(
-                    children: courses.map((course) {
+                    children: provider.courses.map((course) {
                       return Column(
                         children: [
                           CourseCard(
@@ -362,7 +362,7 @@ class _CoursesPageState extends State<CoursesPage> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: courses.length,
+                    itemCount: provider.courses.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
@@ -371,7 +371,7 @@ class _CoursesPageState extends State<CoursesPage> {
                       childAspectRatio: 1.5,
                     ),
                     itemBuilder: (context, index) {
-                      final course = courses[index];
+                      final course = provider.courses[index];
 
                       return CourseCard(
                         course: course,
