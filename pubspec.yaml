@@ -26,5 +26,5 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/data/
+    - assets/data/student_data.json
 
