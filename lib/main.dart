@@ -11,7 +11,7 @@ import 'screens/course_detail_page.dart';
 import 'widgets/course_card.dart';
 import 'screens/favorites_page.dart';
 
-const String studentName = 'Gede Rio Virgiawan Saputra';
+const String studentName = 'Gede Rio Virgiawan saputra';
 const String studentId = '2415051015';
 const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
 Future<List<dynamic>> fetchCourses() async {
