@@ -76,4 +76,17 @@ class CourseProvider extends ChangeNotifier {
     favorites.clear();
     notifyListeners();
   }
+
+Future<void> updateCourse(int id, Course course) async {
+  isSaving = true;
+  notifyListeners();
+
+  try {
+    await repository.updateCourse(id, course);
+    await loadCourses();
+  } finally {
+    isSaving = false;
+    notifyListeners();
+  }
+}
 }

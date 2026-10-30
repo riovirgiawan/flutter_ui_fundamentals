@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/course.dart';
 import '../providers/course_provider.dart';
 import 'course_detail_page.dart';
+import '../pages/edit_course_page.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
@@ -61,6 +62,15 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  void openEdit(BuildContext context, Course course) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => EditCoursePage(course: course),
+    ),
+  );
+}
 
   Widget summaryCard({
     required IconData icon,
@@ -144,10 +154,23 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        trailing: const Icon(
-          Icons.arrow_forward_ios,
-          size: 17,
-          color: Color(0xFF60758A),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(
+                Icons.edit_outlined,
+                color: Color(0xFF24547A),
+              ),
+              tooltip: 'Edit Course',
+              onPressed: () => openEdit(context, course),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 17,
+              color: Color(0xFF60758A),
+            ),
+          ],
         ),
       ),
     );

@@ -151,7 +151,7 @@ class _AddCoursePageState extends State<AddCoursePage> {
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
-                value: selectedStatus,
+                initialValue: selectedStatus,
                 decoration: const InputDecoration(
                   labelText: 'Status Course',
                   border: OutlineInputBorder(),
