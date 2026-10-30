@@ -89,4 +89,22 @@ Future<void> updateCourse(int id, Course course) async {
     notifyListeners();
   }
 }
+
+Future<void> deleteCourse(int id, String code) async {
+  isSaving = true;
+  notifyListeners();
+
+  try {
+    await repository.deleteCourse(id);
+
+    // Hapus dari favorites jika course merupakan favorite
+    favorites.remove(code);
+
+    // Muat ulang daftar course
+    await loadCourses();
+  } finally {
+    isSaving = false;
+    notifyListeners();
+  }
+}
 }

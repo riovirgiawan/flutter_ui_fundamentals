@@ -63,13 +63,61 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void openEdit(BuildContext context, Course course) {
+void openEdit(BuildContext context, Course course) {
   Navigator.push(
     context,
     MaterialPageRoute(
       builder: (_) => EditCoursePage(course: course),
     ),
   );
+}
+
+Future<void> confirmDelete(BuildContext context, Course course) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('Hapus Course?'),
+      content: Text('Yakin ingin menghapus "${course.title}"?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: const Text('Batal'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, true),
+          child: const Text('Hapus'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed != true || !context.mounted) return;
+  if (course.id == null) return;
+
+  try {
+    await context.read<CourseProvider>().deleteCourse(
+      course.id!,
+      course.code,
+    );
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Course berhasil dihapus!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  } catch (e) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Gagal menghapus course: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 }
 
   Widget summaryCard({
@@ -164,6 +212,14 @@ class _HomePageState extends State<HomePage> {
               ),
               tooltip: 'Edit Course',
               onPressed: () => openEdit(context, course),
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.delete_outline,
+                color: Colors.red,
+              ),
+              tooltip: 'Hapus Course',
+              onPressed: () => confirmDelete(context, course),
             ),
             const Icon(
               Icons.arrow_forward_ios,
