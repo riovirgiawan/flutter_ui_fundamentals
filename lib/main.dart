@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'models/course.dart';
 import 'services/course_service.dart';
@@ -11,8 +13,31 @@ import 'screens/favorites_page.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
+const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
+Future<List<dynamic>> fetchCourses() async {
+  final response = await http.get(Uri.parse(apiUrl));
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body) as List<dynamic>;
+
+    debugPrint('GET berhasil!');
+    debugPrint('Jumlah data course: ${data.length}');
+
+    return data;
+  }
+
+  throw Exception('HTTP ${response.statusCode}');
+}
 
 void main() {
+  fetchCourses()
+      .then((courses) {
+        debugPrint('Data berhasil diterima: ${courses.length} course');
+      })
+      .catchError((error) {
+        debugPrint('Gagal mengambil data: $error');
+      });
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseProvider(
