@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/course.dart';
@@ -10,13 +11,21 @@ import 'widgets/course_card.dart';
 import 'screens/favorites_page.dart';
 import 'widgets/error_view.dart';
 import 'screens/add_course_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'config/supabase_config.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
 const String apiBaseUrl = 'https://course-api-pearl.vercel.app';
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    publishableKey: SupabaseConfig.anonKey,
+  );
+
   final repository = CourseRepository(
     CourseApiService(apiBaseUrl),
   );
@@ -81,32 +90,33 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
       selectedIndex = index;
     });
   }
+
   NavigationBar buildNavigationBar() {
     return NavigationBar(
       selectedIndex: selectedIndex,
       onDestinationSelected: changePage,
       destinations: const [
-      NavigationDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home),
-        label: 'Home',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.school_outlined),
-        selectedIcon: Icon(Icons.school),
-        label: 'Courses',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.favorite_outline),
-        selectedIcon: Icon(Icons.favorite),
-        label: 'Favorites',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.person_outline),
-        selectedIcon: Icon(Icons.person),
-        label: 'Profile',
-      ),
-    ],
+        NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.school_outlined),
+          selectedIcon: Icon(Icons.school),
+          label: 'Courses',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.favorite_outline),
+          selectedIcon: Icon(Icons.favorite),
+          label: 'Favorites',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ],
     );
   }
 
@@ -116,27 +126,27 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
       onDestinationSelected: changePage,
       labelType: NavigationRailLabelType.all,
       destinations: const [
-      NavigationRailDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home),
-        label: Text('Home'),
-      ),
-      NavigationRailDestination(
-        icon: Icon(Icons.school_outlined),
-        selectedIcon: Icon(Icons.school),
-        label: Text('Courses'),
-      ),
-      NavigationRailDestination(
-        icon: Icon(Icons.favorite_outline),
-        selectedIcon: Icon(Icons.favorite),
-        label: Text('Favorites'),
-      ),
-      NavigationRailDestination(
-        icon: Icon(Icons.person_outline),
-        selectedIcon: Icon(Icons.person),
-        label: Text('Profile'),
-      ),
-    ],
+        NavigationRailDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: Text('Home'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.school_outlined),
+          selectedIcon: Icon(Icons.school),
+          label: Text('Courses'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.favorite_outline),
+          selectedIcon: Icon(Icons.favorite),
+          label: Text('Favorites'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person),
+          label: Text('Profile'),
+        ),
+      ],
     );
   }
 
@@ -252,7 +262,8 @@ class _CoursesPageState extends State<CoursesPage> {
                 const SizedBox(height: 6),
                 const Text(
                   '$studentId - $studentName',
-                ),const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 16),
 
                 const FavoriteSummary(),
 
@@ -261,10 +272,14 @@ class _CoursesPageState extends State<CoursesPage> {
                 ElevatedButton.icon(
                   onPressed: toggleDetail,
                   icon: Icon(
-                    showDetail ? Icons.visibility_off : Icons.visibility,
+                    showDetail
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                   ),
                   label: Text(
-                    showDetail ? 'Sembunyikan Detail' : 'Tampilkan Detail',
+                    showDetail
+                        ? 'Sembunyikan Detail'
+                        : 'Tampilkan Detail',
                   ),
                 ),
 
@@ -319,6 +334,7 @@ class _CoursesPageState extends State<CoursesPage> {
 
                 const SizedBox(height: 24),
                 const Divider(),
+
                 Card(
                   child: ExpansionTile(
                     title: const Text(
@@ -370,7 +386,8 @@ class FavoriteSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favoriteCount = context.watch<CourseProvider>().favorites.length;
+    final favoriteCount =
+        context.watch<CourseProvider>().favorites.length;
 
     return Card(
       elevation: 2,
@@ -396,7 +413,10 @@ class FavoriteSummary extends StatelessWidget {
               onPressed: favoriteCount == 0
                   ? null
                   : () {
-                      context.read<CourseProvider>().clearFavorites();
+                      context
+                          .read<CourseProvider>()
+                          .clearFavorites();
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Semua favorite dihapus.'),
@@ -420,7 +440,8 @@ class ValueNotifierDemo extends StatefulWidget {
   const ValueNotifierDemo({super.key});
 
   @override
-  State<ValueNotifierDemo> createState() => _ValueNotifierDemoState();
+  State<ValueNotifierDemo> createState() =>
+      _ValueNotifierDemoState();
 }
 
 class _ValueNotifierDemoState extends State<ValueNotifierDemo> {
@@ -544,7 +565,9 @@ class ChangeNotifierDemo extends StatelessWidget {
                 ])
                   ElevatedButton(
                     onPressed: () {
-                      context.read<CourseProvider>().toggleFavorite(id);
+                      context
+                          .read<CourseProvider>()
+                          .toggleFavorite(id);
                     },
                     child: Text(
                       courseProvider.favorites.contains(id)
@@ -580,7 +603,8 @@ class ProfilePage extends StatelessWidget {
           children: [
             const CircleAvatar(
               radius: 46,
-              backgroundImage: AssetImage('assets/images/profile.jpg'),
+              backgroundImage:
+                  AssetImage('assets/images/profile.jpg'),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -710,6 +734,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 ),
               ),
               const SizedBox(height: 18),
+
               TextFormField(
                 controller: namaController,
                 decoration: const InputDecoration(
@@ -723,7 +748,9 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 14),
+
               TextFormField(
                 controller: nimController,
                 decoration: const InputDecoration(
@@ -737,7 +764,9 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 14),
+
               TextFormField(
                 controller: komentarController,
                 maxLines: 4,
@@ -756,7 +785,9 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 18),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -764,6 +795,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   child: const Text('Kirim Feedback'),
                 ),
               ),
+
               if (isLoading) ...[
                 const SizedBox(height: 18),
                 const Center(
@@ -783,4 +815,3 @@ class _FeedbackFormState extends State<FeedbackForm> {
     );
   }
 }
-
