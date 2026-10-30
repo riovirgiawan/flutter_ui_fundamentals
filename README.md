@@ -25,3 +25,23 @@ Proyek Course Explorer menggunakan arsitektur berlapis untuk memisahkan tanggung
 - **widgets/**: Menyimpan komponen UI yang dapat digunakan kembali pada beberapa halaman.
 
 Struktur ini bertujuan memisahkan logika pengambilan data, pengelolaan state, dan tampilan agar kode lebih terorganisasi serta mudah dikembangkan.
+
+## Dokumentasi REST API
+
+**Nama API:** Course API - Pertemuan 7
+
+**Base URL:** `https://course-api-pearl.vercel.app`
+
+**Endpoint:** `/courses`
+
+**HTTP Method:** GET
+
+**Status Code:** 200 OK
+
+**Resource:** Courses
+
+**Format Response:** JSON Array
+
+**Struktur Data:** `id`, `code`, `title`, `credits`, `status`, dan `created_at`.
+
+**Hasil Pengujian:** Request GET berhasil mengambil 18 data course. Response berbentuk array JSON dan setiap objek memiliki field utama yang dibutuhkan oleh aplikasi, yaitu id, code, title, credits, dan status. Pengujian Postman menunjukkan status 200 dan struktur response sesuai dengan yang diharapkan.
