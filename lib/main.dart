@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'models/course.dart';
-import 'services/course_api_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'screens/home_page.dart';
@@ -11,12 +11,12 @@ import 'widgets/course_card.dart';
 import 'screens/favorites_page.dart';
 import 'widgets/error_view.dart';
 import 'screens/add_course_page.dart';
+import 'services/course_supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
 
-const String studentName = 'Gede Rio Virgiawan saputra';
+const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
-const String apiBaseUrl = 'https://course-api-pearl.vercel.app';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +27,7 @@ Future<void> main() async {
   );
 
   final repository = CourseRepository(
-    CourseApiService(apiBaseUrl),
+    CourseSupabaseService(),
   );
 
   runApp(
