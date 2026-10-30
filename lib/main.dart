@@ -218,10 +218,10 @@ class HomePage extends StatelessWidget {
 }
 
 // ======================================================
-// COURSE DATA
+// COURSE DATA (MAP)
 // ======================================================
 
-const List<Map<String, dynamic>> courses = [
+final List<Map<String, dynamic>> courses = [
   {
     'code': 'MOB01',
     'title': 'Git & GitHub',
@@ -253,6 +253,7 @@ const List<Map<String, dynamic>> courses = [
     'status': 'planned',
   },
 ];
+
 
 // ======================================================
 // COURSES PAGE
@@ -311,7 +312,6 @@ class _CoursesPageState extends State<CoursesPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // TAHAP 7: FavoriteSummary menggunakan Provider
                 const FavoriteSummary(),
 
                 const SizedBox(height: 16),
@@ -377,15 +377,27 @@ class _CoursesPageState extends State<CoursesPage> {
 
                 const SizedBox(height: 24),
                 const Divider(),
-                const Text(
-                  'Eksperimen State Management',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                Card(
+                  child: ExpansionTile(
+                    title: const Text(
+                      'Eksperimen State Management',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: const Text(
+                      'Buka untuk melihat latihan ValueNotifier dan Provider',
+                    ),
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: ValueNotifierDemo(),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: ChangeNotifierDemo(),
+                      ),
+                    ],
                   ),
                 ),
-                const ValueNotifierDemo(),
-                const ChangeNotifierDemo(),
               ],
             ),
           );
@@ -396,7 +408,7 @@ class _CoursesPageState extends State<CoursesPage> {
 }
 
 // ======================================================
-// FAVORITE SUMMARY WIDGET (TAHAP 7: watch & read)
+// FAVORITE SUMMARY WIDGET
 // ======================================================
 
 class FavoriteSummary extends StatelessWidget {
@@ -404,7 +416,6 @@ class FavoriteSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TAHAP 7: Menggunakan context.watch() untuk mendengarkan perubahan jumlah favorite
     final favoriteCount = context.watch<CourseProvider>().favorites.length;
 
     return Card(
@@ -431,7 +442,6 @@ class FavoriteSummary extends StatelessWidget {
               onPressed: favoriteCount == 0
                   ? null
                   : () {
-                      // TAHAP 7: Menggunakan context.read() di tombol/aksi event handler
                       context.read<CourseProvider>().clearFavorites();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -532,7 +542,7 @@ class _ValueNotifierDemoState extends State<ValueNotifierDemo> {
 }
 
 // ======================================================
-// CHANGE NOTIFIER DEMO WIDGET (TAHAP 7: watch & read)
+// CHANGE NOTIFIER DEMO WIDGET
 // ======================================================
 
 class ChangeNotifierDemo extends StatelessWidget {
@@ -540,7 +550,6 @@ class ChangeNotifierDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TAHAP 7: context.watch() membaca state & rebuild otomatis saat ada notifyListeners()
     final courseProvider = context.watch<CourseProvider>();
 
     return Card(
@@ -581,7 +590,6 @@ class ChangeNotifierDemo extends StatelessWidget {
                 ])
                   ElevatedButton(
                     onPressed: () {
-                      // TAHAP 7: context.read() dipanggil di event handler (onPressed)
                       context.read<CourseProvider>().toggleFavorite(id);
                     },
                     child: Text(
@@ -600,7 +608,7 @@ class ChangeNotifierDemo extends StatelessWidget {
 }
 
 // ======================================================
-// REUSABLE COURSE CARD (TAHAP 7: Consumer & read)
+// REUSABLE COURSE CARD
 // ======================================================
 
 class CourseCard extends StatelessWidget {
@@ -615,8 +623,6 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String code = course['code'];
-
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -653,14 +659,12 @@ class CourseCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // TAHAP 7: Consumer membatasi rebuild HANYA pada bagian ikon favorit
               Consumer<CourseProvider>(
                 builder: (context, provider, child) {
-                  final isFav = provider.isFavorite(code);
+                  final isFav = provider.isFavorite(course['code']);
                   return IconButton(
                     onPressed: () {
-                      // TAHAP 7: context.read() dipanggil di onPressed
-                      context.read<CourseProvider>().toggleFavorite(code);
+                      context.read<CourseProvider>().toggleFavorite(course['code']);
 
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -690,7 +694,7 @@ class CourseCard extends StatelessWidget {
 }
 
 // ======================================================
-// COURSE DETAIL PAGE (TAHAP 7: Consumer & read)
+// COURSE DETAIL PAGE
 // ======================================================
 
 class CourseDetailPage extends StatelessWidget {
@@ -703,8 +707,6 @@ class CourseDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String code = course['code'];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Course Detail'),
@@ -754,12 +756,12 @@ class CourseDetailPage extends StatelessWidget {
             const SizedBox(height: 30),
             Consumer<CourseProvider>(
               builder: (context, provider, child) {
-                final isFav = provider.isFavorite(code);
+                final isFav = provider.isFavorite(course['code']);
                 return SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      context.read<CourseProvider>().toggleFavorite(code);
+                      context.read<CourseProvider>().toggleFavorite(course['code']);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
