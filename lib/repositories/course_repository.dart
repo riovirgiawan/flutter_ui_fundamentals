@@ -9,4 +9,8 @@ class CourseRepository {
   Future<List<Course>> getCourses() {
     return service.getCourses();
   }
+
+  Future<Course> createCourse(Course course) {
+    return service.createCourse(course);
+  }
 }

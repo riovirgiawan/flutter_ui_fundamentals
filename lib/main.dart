@@ -9,6 +9,7 @@ import 'screens/course_detail_page.dart';
 import 'widgets/course_card.dart';
 import 'screens/favorites_page.dart';
 import 'widgets/error_view.dart';
+import 'screens/add_course_page.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
@@ -342,6 +343,18 @@ class _CoursesPageState extends State<CoursesPage> {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AddCoursePage(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Course'),
       ),
     );
   }

@@ -15,6 +15,9 @@ class CourseProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
+  // Status penyimpanan data baru
+  bool isSaving = false;
+
   // Shared state untuk favorites
   final Set<String> favorites = {};
 
@@ -30,6 +33,24 @@ class CourseProvider extends ChangeNotifier {
       error = e.toString();
     } finally {
       isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Membuat mata kuliah baru melalui Repository
+  Future<Course> createCourse(Course course) async {
+    isSaving = true;
+    notifyListeners();
+
+    try {
+      final createdCourse = await repository.createCourse(course);
+
+      // Memuat ulang daftar agar data terbaru ditampilkan
+      await loadCourses();
+
+      return createdCourse;
+    } finally {
+      isSaving = false;
       notifyListeners();
     }
   }
