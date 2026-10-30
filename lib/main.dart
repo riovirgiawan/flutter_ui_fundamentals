@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
-import 'course_state.dart';
+import 'package:provider/provider.dart';
+import 'course_provider.dart';
 
 const String studentName = 'Gede Rio Virgiawan Saputra';
 const String studentId = '2415051015';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider<CourseProvider>(
+      create: (_) => CourseProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -260,65 +266,13 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
-  final Set<String> favoriteCourses = {};
-
   bool showDetail = false;
 
-  Future<void> openCourseDetail(
-    Map<String, dynamic> course,
-  ) async {
-    final result = await Navigator.push<bool>(
+  void openCourseDetail(Map<String, dynamic> course) {
+    Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CourseDetailPage(
-          course: course,
-          isFavorite: favoriteCourses.contains(course['code']),
-        ),
-      ),
-    );
-
-    if (result == true && mounted) {
-      setState(() {
-        favoriteCourses.add(course['code']);
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${course['title']} ditambahkan ke favorite.',
-          ),
-        ),
-      );
-    }
-  }
-
-  void toggleFavorite(Map<String, dynamic> course) {
-    setState(() {
-      if (favoriteCourses.contains(course['code'])) {
-        favoriteCourses.remove(course['code']);
-      } else {
-        favoriteCourses.add(course['code']);
-      }
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          favoriteCourses.contains(course['code'])
-              ? 'Course ditambahkan ke favorite'
-              : 'Course dihapus dari favorite',
-        ),
-      ),
-    );
-  }
-
-  void clearFavorites() {
-    setState(() {
-      favoriteCourses.clear();
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Semua favorite dihapus.'),
+        builder: (_) => CourseDetailPage(course: course),
       ),
     );
   }
@@ -357,11 +311,9 @@ class _CoursesPageState extends State<CoursesPage> {
                 ),
                 const SizedBox(height: 20),
 
-                FavoriteSummary(
-                  favoriteCourses: favoriteCourses,
-                  onClearFavorites: clearFavorites,
-                ),
-                
+                // TAHAP 7: FavoriteSummary menggunakan Provider
+                const FavoriteSummary(),
+
                 const SizedBox(height: 16),
 
                 ElevatedButton.icon(
@@ -383,10 +335,7 @@ class _CoursesPageState extends State<CoursesPage> {
                         children: [
                           CourseCard(
                             course: course,
-                            isFavorite:
-                                favoriteCourses.contains(course['code']),
                             onTap: () => openCourseDetail(course),
-                            onFavorite: () => toggleFavorite(course),
                           ),
                           if (showDetail)
                             Card(
@@ -421,15 +370,11 @@ class _CoursesPageState extends State<CoursesPage> {
 
                       return CourseCard(
                         course: course,
-                        isFavorite:
-                            favoriteCourses.contains(course['code']),
                         onTap: () => openCourseDetail(course),
-                        onFavorite: () => toggleFavorite(course),
                       );
                     },
                   ),
 
-                // --- BAGIAN EKSPERIMEN DIPINDAHKAN KE BAWAH SINI ---
                 const SizedBox(height: 24),
                 const Divider(),
                 const Text(
@@ -451,21 +396,17 @@ class _CoursesPageState extends State<CoursesPage> {
 }
 
 // ======================================================
-// FAVORITE SUMMARY WIDGET
+// FAVORITE SUMMARY WIDGET (TAHAP 7: watch & read)
 // ======================================================
 
 class FavoriteSummary extends StatelessWidget {
-  final Set<String> favoriteCourses;
-  final VoidCallback onClearFavorites;
-
-  const FavoriteSummary({
-    super.key,
-    required this.favoriteCourses,
-    required this.onClearFavorites,
-  });
+  const FavoriteSummary({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // TAHAP 7: Menggunakan context.watch() untuk mendengarkan perubahan jumlah favorite
+    final favoriteCount = context.watch<CourseProvider>().favorites.length;
+
     return Card(
       elevation: 2,
       child: Padding(
@@ -473,15 +414,31 @@ class FavoriteSummary extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Jumlah course favorit: ${favoriteCourses.length}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                const Icon(Icons.favorite, color: Colors.red),
+                const SizedBox(width: 8),
+                Text(
+                  'Jumlah course favorit: $favoriteCount',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             TextButton(
-              onPressed: favoriteCourses.isEmpty ? null : onClearFavorites,
+              onPressed: favoriteCount == 0
+                  ? null
+                  : () {
+                      // TAHAP 7: Menggunakan context.read() di tombol/aksi event handler
+                      context.read<CourseProvider>().clearFavorites();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Semua favorite dihapus.'),
+                        ),
+                      );
+                    },
               child: const Text('Hapus Semua'),
             ),
           ],
@@ -499,8 +456,7 @@ class ValueNotifierDemo extends StatefulWidget {
   const ValueNotifierDemo({super.key});
 
   @override
-  State<ValueNotifierDemo> createState() =>
-      _ValueNotifierDemoState();
+  State<ValueNotifierDemo> createState() => _ValueNotifierDemoState();
 }
 
 class _ValueNotifierDemoState extends State<ValueNotifierDemo> {
@@ -576,84 +532,67 @@ class _ValueNotifierDemoState extends State<ValueNotifierDemo> {
 }
 
 // ======================================================
-// CHANGE NOTIFIER DEMO WIDGET
+// CHANGE NOTIFIER DEMO WIDGET (TAHAP 7: watch & read)
 // ======================================================
 
-class ChangeNotifierDemo extends StatefulWidget {
+class ChangeNotifierDemo extends StatelessWidget {
   const ChangeNotifierDemo({super.key});
 
   @override
-  State<ChangeNotifierDemo> createState() =>
-      _ChangeNotifierDemoState();
-}
-
-class _ChangeNotifierDemoState extends State<ChangeNotifierDemo> {
-  final CourseState courseState = CourseState();
-
-  @override
-  void dispose() {
-    courseState.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // TAHAP 7: context.watch() membaca state & rebuild otomatis saat ada notifyListeners()
+    final courseProvider = context.watch<CourseProvider>();
+
     return Card(
       margin: const EdgeInsets.only(top: 16, bottom: 16),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: AnimatedBuilder(
-          animation: courseState,
-          builder: (context, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Eksperimen ChangeNotifier',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text('$studentId - $studentName'),
+            const SizedBox(height: 12),
+            Text(
+              'Jumlah favorite: ${courseProvider.favorites.length}',
+            ),
+            const SizedBox(height: 8),
+            Text(
+              courseProvider.favorites.isEmpty
+                  ? 'Belum ada favorite.'
+                  : 'Favorite: ${courseProvider.favorites.join(', ')}',
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                const Text(
-                  'Eksperimen ChangeNotifier',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                for (final id in [
+                  'MOB01',
+                  'MOB02',
+                  'MOB03',
+                ])
+                  ElevatedButton(
+                    onPressed: () {
+                      // TAHAP 7: context.read() dipanggil di event handler (onPressed)
+                      context.read<CourseProvider>().toggleFavorite(id);
+                    },
+                    child: Text(
+                      courseProvider.favorites.contains(id)
+                          ? 'Hapus $id'
+                          : 'Pilih $id',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text('$studentId - $studentName'),
-                const SizedBox(height: 12),
-                Text(
-                  'Jumlah favorite: '
-                  '${courseState.favorites.length}',
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  courseState.favorites.isEmpty
-                      ? 'Belum ada favorite.'
-                      : 'Favorite: '
-                          '${courseState.favorites.join(', ')}',
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final id in [
-                      'MOB01',
-                      'MOB02',
-                      'MOB03',
-                    ])
-                      ElevatedButton(
-                        onPressed: () {
-                          courseState.toggleFavorite(id);
-                        },
-                        child: Text(
-                          courseState.favorites.contains(id)
-                              ? 'Hapus $id'
-                              : 'Pilih $id',
-                        ),
-                      ),
-                  ],
-                ),
               ],
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
@@ -661,25 +600,23 @@ class _ChangeNotifierDemoState extends State<ChangeNotifierDemo> {
 }
 
 // ======================================================
-// REUSABLE COURSE CARD
+// REUSABLE COURSE CARD (TAHAP 7: Consumer & read)
 // ======================================================
 
 class CourseCard extends StatelessWidget {
   final Map<String, dynamic> course;
-  final bool isFavorite;
   final VoidCallback onTap;
-  final VoidCallback onFavorite;
 
   const CourseCard({
     super.key,
     required this.course,
-    required this.isFavorite,
     required this.onTap,
-    required this.onFavorite,
   });
 
   @override
   Widget build(BuildContext context) {
+    final String code = course['code'];
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -707,8 +644,7 @@ class CourseCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '${course['code']} • '
-                      '${course['credits']} SKS',
+                      '${course['code']} • ${course['credits']} SKS',
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -717,13 +653,33 @@ class CourseCard extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: onFavorite,
-                icon: Icon(
-                  isFavorite
-                      ? Icons.favorite
-                      : Icons.favorite_border,
-                ),
+              // TAHAP 7: Consumer membatasi rebuild HANYA pada bagian ikon favorit
+              Consumer<CourseProvider>(
+                builder: (context, provider, child) {
+                  final isFav = provider.isFavorite(code);
+                  return IconButton(
+                    onPressed: () {
+                      // TAHAP 7: context.read() dipanggil di onPressed
+                      context.read<CourseProvider>().toggleFavorite(code);
+
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isFav
+                                ? '${course['title']} dihapus dari favorite.'
+                                : '${course['title']} ditambahkan ke favorite.',
+                          ),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      color: isFav ? Colors.red : null,
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -734,21 +690,21 @@ class CourseCard extends StatelessWidget {
 }
 
 // ======================================================
-// COURSE DETAIL PAGE
+// COURSE DETAIL PAGE (TAHAP 7: Consumer & read)
 // ======================================================
 
 class CourseDetailPage extends StatelessWidget {
   final Map<String, dynamic> course;
-  final bool isFavorite;
 
   const CourseDetailPage({
     super.key,
     required this.course,
-    required this.isFavorite,
   });
 
   @override
   Widget build(BuildContext context) {
+    final String code = course['code'];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Course Detail'),
@@ -796,15 +752,34 @@ class CourseDetailPage extends StatelessWidget {
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                icon: const Icon(Icons.favorite),
-                label: const Text('Pilih sebagai Favorite'),
-              ),
+            Consumer<CourseProvider>(
+              builder: (context, provider, child) {
+                final isFav = provider.isFavorite(code);
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      context.read<CourseProvider>().toggleFavorite(code);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isFav
+                                ? '${course['title']} dihapus dari favorite.'
+                                : '${course['title']} ditambahkan ke favorite.',
+                          ),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      color: isFav ? Colors.red : null,
+                    ),
+                    label: Text(
+                      isFav ? 'Hapus dari Favorite' : 'Pilih sebagai Favorite',
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
