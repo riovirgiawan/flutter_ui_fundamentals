@@ -14,7 +14,7 @@ import 'screens/add_course_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
 
-const String studentName = 'Gede Rio Virgiawan Saputra';
+const String studentName = 'Gede Rio Virgiawan saputra';
 const String studentId = '2415051015';
 const String apiBaseUrl = 'https://course-api-pearl.vercel.app';
 
